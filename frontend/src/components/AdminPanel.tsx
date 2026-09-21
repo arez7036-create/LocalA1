@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '../lib/api'
 import { UserRead } from '../types'
-import { Shield, Users, MessageSquare, Trash2, Edit, X, Check, Loader2 } from 'lucide-react'
+import { Shield, Users, Trash2, X, Check, Loader2 } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 interface AdminUser extends UserRead {
@@ -19,7 +19,6 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [stats, setStats] = useState<AdminStats>({ total_users: 0, total_messages: 0, messages_today: 0 })
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState<number | null>(null)
 
   const fetchData = async () => {
     try {
@@ -39,35 +38,20 @@ export default function AdminPanel() {
   useEffect(() => { fetchData() }, [])
 
   const toggleAdmin = async (user: AdminUser) => {
-    setSaving(user.id)
     try {
       await api.patch(`/admin/users/${user.id}`, { is_superuser: !user.is_superuser })
       setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_superuser: !u.is_superuser } : u))
     } catch (err) {
       console.error('Failed to update user:', err)
-    } finally {
-      setSaving(null)
     }
   }
 
   const toggleActive = async (user: AdminUser) => {
-    setSaving(user.id)
     try {
       await api.patch(`/admin/users/${user.id}`, { is_active: !user.is_active })
       setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_active: !u.is_active } : u))
     } catch (err) {
       console.error('Failed to update user:', err)
-    } finally {
-      setSaving(null)
-    }
-  }
-
-  const updateRateLimit = async (user: AdminUser, field: 'rate_limit' | 'rate_window', value: number) => {
-    try {
-      await api.patch(`/admin/users/${user.id}`, { [field]: value })
-      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, [field]: value } : u))
-    } catch (err) {
-      console.error('Failed to update rate limit:', err)
     }
   }
 

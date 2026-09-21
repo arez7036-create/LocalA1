@@ -9,7 +9,7 @@ echo "🚀 Deploying LocalAI Custom..."
 # Install Docker
 apt-get update && apt-get install -y ca-certificates curl gnupg git
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg
 chmod a+r /etc/apt/keyrings/docker.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -19,7 +19,11 @@ systemctl enable --now docker
 REPO_URL="https://github.com/arez7036-create/LocalA1.git"
 INSTALL_DIR="/opt/LocalAI-Custom"
 
-git clone "$REPO_URL" "$INSTALL_DIR"
+if [ -d "$INSTALL_DIR/.git" ]; then
+    git -C "$INSTALL_DIR" pull --ff-only
+else
+    git clone "$REPO_URL" "$INSTALL_DIR"
+fi
 cd "$INSTALL_DIR"
 
 # Setup .env
@@ -31,8 +35,7 @@ if [ ! -f .env ]; then
     sed -i "s|openssl_rand_base64_24|$DB_PASS|" .env
     sed -i "s|openssl_rand_base64_32|$SECRET|" .env
     sed -i "s|strong_password_123|$ADMIN_PASS|" .env
-    echo "Generated secrets saved to .env"
-    echo "Admin password: $ADMIN_PASS"
+    echo "Generated secrets saved to .env. Admin credentials are stored only in that file."
 fi
 
 # Start stack

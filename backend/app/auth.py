@@ -1,11 +1,13 @@
 from fastapi_users import FastAPIUsers
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from fastapi_users.db import SQLAlchemyUserDatabase
+from fastapi_users.password import PasswordHelper
 from app.database import get_async_session
 from app.models import User
 from app.config import get_settings
 
 settings = get_settings()
+password_helper = PasswordHelper()
 
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 

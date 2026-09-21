@@ -68,12 +68,6 @@ export function useSessions() {
 
   const setActiveSessionState = useCallback((id: number | null) => {
     setActiveSession(id)
-    if (id !== null) {
-      // Load messages for this session
-      api.get(`/sessions/${id}/messages`).then(res => {
-        // Messages will be loaded by useChat via sessionId
-      })
-    }
   }, [])
 
   return { sessions, activeSession, setActiveSession: setActiveSessionState, createSession, deleteSession, updateSession, loading, refetch: fetchSessions }

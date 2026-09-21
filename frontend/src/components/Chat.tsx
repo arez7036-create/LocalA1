@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Send, Loader2, Bot, User, LogOut, Plus, MessageSquare, X, Trash2, Edit, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Send, Loader2, Bot, User, LogOut, Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useChat } from '../hooks/useChat'
 import { useModels } from '../hooks/useModels'
@@ -11,7 +11,7 @@ import { cn } from '../lib/utils'
 export default function Chat() {
   const { user, logout } = useAuth()
   const { models, selectedModel, setSelectedModel, loading: modelsLoading } = useModels()
-  const { sessions, createSession, deleteSession, updateSession, setActiveSession, activeSession, loading: sessionsLoading } = useSessions()
+  const { sessions, createSession, deleteSession, setActiveSession, activeSession, loading: sessionsLoading } = useSessions()
   const { messages, sendMessage, loading, error, clearChat } = useChat(activeSession)
   const [input, setInput] = useState('')
   const [showSidebar, setShowSidebar] = useState(true)
@@ -39,8 +39,7 @@ export default function Chat() {
     if (window.innerWidth < 768) setShowSidebar(false)
   }
 
-  const handleDeleteSession = async (e: React.MouseEvent, sessionId: number) => {
-    e.stopPropagation()
+  const handleDeleteSession = async (sessionId: number) => {
     if (confirm('Удалить чат?')) {
       await deleteSession(sessionId)
     }
@@ -76,28 +75,35 @@ export default function Chat() {
               </div>
             ) : (
               sessions.map(session => (
-                <button
+                <div
                   key={session.id}
-                  onClick={() => handleSessionClick(session.id)}
                   className={cn(
-                    'w-full text-left p-2.5 rounded-lg transition-colors flex items-center gap-2',
+                    'group w-full p-2.5 rounded-lg transition-colors',
                     activeSession === session.id
                       ? 'bg-green-50 text-green-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   )}
                 >
-                  <MessageSquare className={cn('w-4 h-4 flex-shrink-0', activeSession === session.id ? 'text-green-600' : 'text-gray-400')} />
-                  <span className="flex-1 truncate text-sm">{session.title || 'Новый чат'}</span>
-                  <span className="text-xs text-gray-400 whitespace-nowrap">
-                    {new Date(session.updated_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}
-                  </span>
                   <button
-                    onClick={(e) => handleDeleteSession(e, session.id)}
+                    onClick={() => handleSessionClick(session.id)}
+                    className="flex w-full items-center gap-2 text-left min-w-0"
+                  >
+                    <MessageSquare className={cn('w-4 h-4 flex-shrink-0', activeSession === session.id ? 'text-green-600' : 'text-gray-400')} />
+                    <span className="flex-1 truncate text-sm">{session.title || 'Новый чат'}</span>
+                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                      {new Date(session.updated_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Удалить чат ${session.title || ''}`}
+                    title="Удалить чат"
+                    onClick={() => handleDeleteSession(session.id)}
                     className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                </button>
+                </div>
               ))
             )}
           </div>

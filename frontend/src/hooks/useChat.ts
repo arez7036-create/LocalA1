@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { api } from '../lib/api'
+import { API_BASE_URL, api } from '../lib/api'
 
 export function useChat(sessionId: number | null) {
   const [messages, setMessages] = useState<Array<{role: string, content: string, streaming?: boolean}>>([])
@@ -28,7 +28,7 @@ export function useChat(sessionId: number | null) {
     setMessages(prev => [...prev, userMsg])
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/chat`, {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

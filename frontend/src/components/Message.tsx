@@ -5,15 +5,7 @@ import { User, Bot } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '../lib/utils'
 
-marked.setOptions({
-  highlight: (code, lang) => {
-    if (lang && hljs.getLanguage(lang)) {
-      return hljs.highlight(code, { language: lang }).value
-    }
-    return hljs.highlightAuto(code).value
-  },
-  breaks: true,
-})
+marked.setOptions({ breaks: true })
 
 interface MessageProps {
   message: { role: string; content: string; streaming?: boolean }

@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from datetime import datetime
 from fastapi import FastAPI, Depends, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -8,15 +9,14 @@ from slowapi.errors import RateLimitExceeded
 from sqladmin import Admin
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
-import httpx
 import json
 
-from app.database import engine, create_db_and_tables, get_async_session
+from app.database import engine, create_db_and_tables, get_async_session, async_session_maker
 from app.models import User, ChatMessage, ChatSession, ChatRole
-from app.auth import auth_backend, fastapi_users, current_active_user, current_superuser
-from app.schemas import UserRead, UserCreate, UserUpdate, ChatRequest, ChatResponse, ModelList, ChatSessionRead, ChatSessionCreate, ChatSessionUpdate
+from app.auth import auth_backend, fastapi_users, current_active_user, current_superuser, password_helper
+from app.schemas import UserRead, UserCreate, UserUpdate, ChatRequest, ModelList, ChatSessionRead, ChatSessionCreate, ChatSessionUpdate
 from app.ollama_client import ollama_client
-from app.admin import UserAdmin, ChatMessageAdmin
+from app.admin import UserAdmin, ChatSessionAdmin, ChatMessageAdmin
 from app.rate_limit import rate_limit_dependency
 from app.config import get_settings
 
@@ -27,6 +27,20 @@ limiter = Limiter(key_func=get_remote_address)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_db_and_tables()
+    async with async_session_maker() as session:
+        existing_admin = await session.scalar(
+            select(User).where(User.email == settings.FIRST_SUPERUSER)
+        )
+        if existing_admin is None:
+            session.add(User(
+                email=settings.FIRST_SUPERUSER,
+                hashed_password=password_helper.hash(settings.FIRST_SUPERUSER_PASSWORD),
+                is_active=True,
+                is_superuser=True,
+                is_verified=True,
+                rate_limit=0,
+            ))
+            await session.commit()
     await ollama_client.start()
     yield
     await ollama_client.close()
@@ -76,6 +90,7 @@ app.include_router(
 
 admin = Admin(app, engine, title="LocalAI Admin")
 admin.add_view(UserAdmin)
+admin.add_view(ChatSessionAdmin)
 admin.add_view(ChatMessageAdmin)
 
 # ===== Sessions =====
@@ -240,13 +255,6 @@ async def chat(
             await db.commit()
 
     return StreamingResponse(generate(), media_type="text/event-stream", headers={"X-Session-ID": str(session.id)})
-
-# ===== Models =====
-@app.get("/models", response_model=ModelList)
-@limiter.limit("30/minute")
-async def list_models(request: Request, user=Depends(current_active_user)):
-    models = await ollama_client.list_models()
-    return {"models": models}
 
 # ===== Health =====
 @app.get("/health")

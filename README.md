@@ -50,7 +50,7 @@
 ### 2. Задеплой одной командой
 ```bash
 ssh root@ТВОЙ_IP
-curl -fsSL https://raw.githubusercontent.com/ТВОЙ_ЮЗЕР/LocalAI-Custom/main/scripts/deploy-vultr.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/arez7036-create/LocalA1/master/scripts/deploy-vultr.sh | bash
 ```
 
 ### 3. Готово
@@ -62,8 +62,8 @@ curl -fsSL https://raw.githubusercontent.com/ТВОЙ_ЮЗЕР/LocalAI-Custom/ma
 ## 🔧 Локальная разработка
 
 ```bash
-git clone https://github.com/ТВОЙ_ЮЗЕР/LocalAI-Custom.git
-cd LocalAI-Custom
+    git clone https://github.com/arez7036-create/LocalA1.git LocalAI-Custom
+    cd LocalAI-Custom
 
 # Backend
 cd backend
@@ -91,13 +91,12 @@ LocalAI-Custom/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── app/
-│       ├── main.py             # FastAPI + FastAPI-Users + SQLAdmin
+│       ├── main.py             # FastAPI + FastAPI-Users + admin API
 │       ├── models.py           # User, ChatMessage
 │       ├── schemas.py          # Pydantic
 │       ├── auth.py             # JWT, регистрация, логин
 │       ├── ollama_client.py    # Прокси к Ollama
 │       ├── rate_limit.py       # Redis rate limiting per user
-│       ├── admin.py            # SQLAdmin панели
 │       ├── database.py         # DB сессии
 │       └── config.py           # Настройки из .env
 ├── frontend/
@@ -177,9 +176,8 @@ docker compose restart
 ## 🔐 Админка
 
 После деплоя:
-1. Зайди на `http://IP/admin`
-2. Логин: `ADMIN_EMAIL` из .env
-3. Пароль: `ADMIN_PASSWORD` из .env
+1. Войди с `ADMIN_EMAIL` и `ADMIN_PASSWORD` из `.env`.
+2. Открой `http://IP/admin`.
 
 **Возможности:**
 - Просмотр/редактирование пользователей
@@ -225,7 +223,7 @@ Nginx автоматически подхватит сертификаты из 
 | Компонент | Проект | За что отвечает |
 |-----------|--------|-----------------|
 | **Auth** | [FastAPI-Users](https://github.com/fastapi-users/fastapi-users) | JWT, регистрация, логин, сброс пароля |
-| **Admin** | [SQLAdmin](https://github.com/aminalaee/sqladmin) | Авто-админка для SQLAlchemy |
+| **Admin** | Встроенная React-панель + защищённый FastAPI API | Пользователи, роли, лимиты и статистика |
 | **Rate Limit** | [SlowAPI](https://github.com/lauralet/SlowAPI) | Лимиты на IP + кастомные на юзера |
 | **Ollama** | [ollama-python](https://github.com/ollama/ollama-python) | Клиент для Ollama API |
 | **Frontend UI** | [NextChat](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web) | Компоненты чата, markdown, код |
