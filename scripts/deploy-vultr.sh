@@ -41,9 +41,19 @@ fi
 # Start stack
 docker compose up -d
 
+# Wait for Ollama to be ready
+echo "⏳ Waiting for Ollama to be ready..."
+for i in {1..30}; do
+    if docker exec localai-custom-ollama-1 ollama list >/dev/null 2>&1; then
+        echo "✅ Ollama ready"
+        break
+    fi
+    sleep 2
+done
+
 # Pull model
 echo "📥 Pulling model (this takes 5-10 minutes)..."
-docker exec -it localai-custom-ollama-1 ollama pull dolphin-llama3:8b
+docker exec localai-custom-ollama-1 ollama pull dolphin-llama3:8b
 
 IP=$(curl -s ifconfig.me || curl -s icanhazip.com)
 echo ""
