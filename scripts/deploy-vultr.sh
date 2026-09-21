@@ -38,6 +38,10 @@ if [ ! -f .env ]; then
     echo "Generated secrets saved to .env. Admin credentials are stored only in that file."
 fi
 
+# Get public IP for CORS
+IP=$(curl -s ifconfig.me || curl -s icanhazip.com)
+sed -i "s|yourdomain.com|$IP|" .env
+
 # Start stack
 docker compose up -d
 
@@ -55,7 +59,6 @@ done
 echo "📥 Pulling model (this takes 5-10 minutes)..."
 docker exec localai-custom-ollama-1 ollama pull dolphin-llama3:8b
 
-IP=$(curl -s ifconfig.me || curl -s icanhazip.com)
 echo ""
 echo "✅ LocalAI Custom deployed!"
 echo "🌐 Access: http://$IP"
