@@ -97,9 +97,8 @@ export default function Chat() {
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                </button>
-              ))}
-            )}
+                ))}
+              )}
           </div>
 
           <div className="p-3 border-t border-gray-200">
