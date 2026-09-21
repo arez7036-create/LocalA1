@@ -97,8 +97,9 @@ export default function Chat() {
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                ))}
-              )}
+                </button>
+              ))
+            )}
           </div>
 
           <div className="p-3 border-t border-gray-200">
@@ -164,11 +165,4 @@ export default function Chat() {
       </div>
     </div>
   )
-}
-
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  if (!input.trim() || loading) return
-  await sendMessage(input, selectedModel)
-  setInput('')
 }
